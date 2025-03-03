@@ -1,4 +1,4 @@
-# Sensor Data Visualizer
+# RFID ENABLED DEVICE MONITORING
 
 A real-time sensor monitoring system with web dashboard and ESP32-based data collection.
 
@@ -74,7 +74,7 @@ The ESP32 sends the following data every second:
 When an RFID card is detected:
 ```json
 {
-    "rfid_tag": "a4b2c6d8" // Card ID in hex
+    "rfid_tag": "a4b2c6d8" 
 }
 ```
 
