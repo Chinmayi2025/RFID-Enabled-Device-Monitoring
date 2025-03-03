@@ -62,11 +62,11 @@ Follow the instructions in [esp32_setup.md](esp32_setup.md) for detailed hardwar
 The ESP32 sends the following data every second:
 ```json
 {
-    "temperature": 25.6,    // Temperature in Celsius
-    "humidity": 65.3,       // Humidity percentage
-    "voltage": 12.0,        // Bus voltage in Volts
-    "current": 500.0,       // Current in milliamps
-    "power": 6.0           // Power in Watts
+    "temperature": 25.6,    
+    "humidity": 65.3,       
+    "voltage": 12.0,        
+    "current": 500.0,       
+    "power": 6.0           
 }
 ```
 
