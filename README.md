@@ -1,36 +1,143 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sensor Data Visualizer
+
+A real-time sensor monitoring system with web dashboard and ESP32-based data collection.
+
+## Features
+
+- Real-time temperature and humidity monitoring
+- Power consumption tracking
+- RFID access control
+- Automated cooling control
+- Modern web dashboard with live updates
+- Secure data storage with SQLite
+
+## System Architecture
+
+### Hardware Components
+- ESP32 Development Board
+- DHT11 Temperature & Humidity Sensor
+- INA219 Current/Power Sensor
+- RFID-RC522 Module
+- Relay Module
+
+### Software Stack
+- Frontend: Next.js, TailwindCSS, Chart.js
+- Backend: Flask (Python)
+- Database: SQLite
+- IoT: Arduino (ESP32)
 
 ## Getting Started
 
-First, run the development server:
+### 1. Setting up the Web Server
 
+1. Install Python requirements:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pip install -r requirements.txt
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install Node.js dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Start the Flask backend:
+```bash
+python app.py
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Start the Next.js frontend:
+```bash
+npm run dev
+```
 
-## Learn More
+The dashboard will be available at `http://localhost:3000`
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Setting up the ESP32
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Follow the instructions in [esp32_setup.md](esp32_setup.md) for detailed hardware setup and programming instructions.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Data Flow
 
-## Deploy on Vercel
+### Sensor Data
+The ESP32 sends the following data every second:
+```json
+{
+    "temperature": 25.6,    // Temperature in Celsius
+    "humidity": 65.3,       // Humidity percentage
+    "voltage": 12.0,        // Bus voltage in Volts
+    "current": 500.0,       // Current in milliamps
+    "power": 6.0           // Power in Watts
+}
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### RFID Access Control
+When an RFID card is detected:
+```json
+{
+    "rfid_tag": "a4b2c6d8" // Card ID in hex
+}
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Automated Controls
+- Cooling system activates when temperature > 30°C
+- Cooling system deactivates when temperature < 25°C
+- All events are logged in the database
+
+## API Endpoints
+
+### Sensor Data
+- `POST /send-sensor-data`: Submit sensor readings
+- `GET /view-sensor-data`: Retrieve sensor history
+- `GET /power-analytics`: Get power consumption analytics
+
+### Access Control
+- `POST /rfid-access`: Validate RFID access
+- `GET /get-rfid-logs`: View access history
+
+### System Management
+- `GET /get-alerts`: View system alerts
+- `POST /resolve-alert/<id>`: Mark alert as resolved
+- `POST /submit-feedback`: Submit user feedback
+- `GET /get-feedback`: View feedback history
+
+## Dashboard Features
+
+1. Overview Cards:
+   - Current Temperature
+   - Current Humidity
+   - Power Usage
+   - Active Alerts
+
+2. Charts:
+   - Temperature Trend
+   - Power Consumption History
+
+3. Data Tables:
+   - Sensor History
+   - Access Logs
+   - System Alerts
+
+## Troubleshooting
+
+### Web Dashboard
+- Ensure both Flask and Next.js servers are running
+- Check browser console for frontend errors
+- Verify database file permissions
+
+### ESP32
+- Verify WiFi credentials
+- Confirm server IP address is correct
+- Check serial monitor for debugging messages
+- Verify sensor connections
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+MIT License - feel free to use this project for any purpose.
