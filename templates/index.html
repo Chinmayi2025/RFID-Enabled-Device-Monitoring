@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Data Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h4>Sensor Dashboard</h4>
+            </div>
+            <div class="nav-items">
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Usage Analytics</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-temperature-high"></i>
+                    <span>Temperature & Humidity</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-bolt"></i>
+                    <span>Power Consumption</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Maintenance Alerts</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-comments"></i>
+                    <span>User Feedback</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="dashboard-header">
+                <h2>Dashboard Overview</h2>
+                <p class="text-muted">Welcome to your sensor monitoring dashboard</p>
+            </div>
+            
+            <div class="dashboard-cards">
+                <div class="card">
+                    <div class="card-header">Temperature</div>
+                    <div class="card-body">
+                        <h3>24°C</h3>
+                        <p class="text-success">↑ 2% from yesterday</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Humidity</div>
+                    <div class="card-body">
+                        <h3>65%</h3>
+                        <p class="text-danger">↓ 5% from yesterday</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Power Usage</div>
+                    <div class="card-body">
+                        <h3>1.2 kW</h3>
+                        <p class="text-success">↓ 10% from yesterday</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="temperatureChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="powerChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

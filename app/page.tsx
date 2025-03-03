@@ -1,101 +1,139 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Thermometer, Droplets, Battery, AlertTriangle } from 'lucide-react';
+import DashboardCard from './components/DashboardCard';
+import SensorChart from './components/SensorChart';
+import PowerChart from './components/PowerChart';
+
+interface SensorData {
+  temperature: number;
+  humidity: number;
+  timestamp: string;
+}
+
+interface PowerData {
+  current: {
+    power: number;
+    energy: number;
+    cost: number;
+    peak: number;
+  };
+  hourly_data: Array<{
+    hour: string;
+    power: number;
+    energy: number;
+  }>;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [sensorData, setSensorData] = useState<SensorData[]>([]);
+  const [powerData, setPowerData] = useState<PowerData | null>(null);
+  const [alerts, setAlerts] = useState({ count: 0, change: 0 });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch sensor data
+        const sensorResponse = await fetch('http://localhost:5000/view-sensor-data');
+        const sensorResult = await sensorResponse.json();
+        setSensorData(sensorResult.map((row: any) => ({
+          temperature: row[1],
+          humidity: row[2],
+          timestamp: row[3]
+        })));
+
+        // Fetch power data
+        const powerResponse = await fetch('http://localhost:5000/power-analytics');
+        const powerResult = await powerResponse.json();
+        setPowerData(powerResult);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+    const interval = setInterval(fetchData, 1000); // Update every second
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Calculate changes from previous readings
+  const getChange = (current: number, previous: number): number => {
+    if (!previous) return 0;
+    return Number(((current - previous) / previous * 100).toFixed(1));
+  };
+
+  const currentTemp = sensorData[0]?.temperature ?? 24;
+  const previousTemp = sensorData[1]?.temperature ?? currentTemp;
+  const tempChange = getChange(currentTemp, previousTemp);
+
+  const currentHumidity = sensorData[0]?.humidity ?? 65;
+  const previousHumidity = sensorData[1]?.humidity ?? currentHumidity;
+  const humidityChange = getChange(currentHumidity, previousHumidity);
+
+  const currentPower = powerData?.current.power ?? 0;
+  const previousPower = powerData?.hourly_data[0]?.power ?? currentPower;
+  const powerChange = getChange(currentPower, previousPower);
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold">Dashboard Overview</h1>
+        <p className="text-gray-500">Welcome to your sensor monitoring dashboard</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <DashboardCard
+          title="Temperature"
+          value={`${currentTemp.toFixed(1)}°C`}
+          change={{ value: Math.abs(tempChange), type: tempChange >= 0 ? 'increase' : 'decrease' }}
+          icon={<Thermometer className="w-6 h-6" />}
+        />
+        <DashboardCard
+          title="Humidity"
+          value={`${currentHumidity.toFixed(1)}%`}
+          change={{ value: Math.abs(humidityChange), type: humidityChange >= 0 ? 'increase' : 'decrease' }}
+          icon={<Droplets className="w-6 h-6" />}
+        />
+        <DashboardCard
+          title="Power Usage"
+          value={`${(currentPower / 1000).toFixed(2)} kW`}
+          change={{ value: Math.abs(powerChange), type: powerChange >= 0 ? 'increase' : 'decrease' }}
+          icon={<Battery className="w-6 h-6" />}
+        />
+        <DashboardCard
+          title="Active Alerts"
+          value={alerts.count}
+          change={{ value: Math.abs(alerts.change), type: alerts.change >= 0 ? 'increase' : 'decrease' }}
+          icon={<AlertTriangle className="w-6 h-6" />}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="chart-container">
+          <h3 className="text-lg font-medium mb-6 text-gray-800">
+            <div className="flex items-center">
+              <Thermometer className="w-5 h-5 mr-2 text-primary" />
+              Temperature Trend
+            </div>
+          </h3>
+          <div className="h-[350px]">
+            <SensorChart data={sensorData} type="temperature" />
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <div className="chart-container">
+          <h3 className="text-lg font-medium mb-6 text-gray-800">
+            <div className="flex items-center">
+              <Battery className="w-5 h-5 mr-2 text-primary" />
+              Power Consumption
+            </div>
+          </h3>
+          <div className="h-[350px]">
+            {powerData?.hourly_data && <PowerChart data={powerData.hourly_data} />}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

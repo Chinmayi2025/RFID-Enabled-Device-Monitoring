@@ -3,19 +3,59 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --primary: #4a90e2;
+  --secondary: #f5f6fa;
+  --text: #2d3436;
+  --success: #2ecc71;
+  --warning: #f1c40f;
+  --danger: #e74c3c;
+  --gray: #95a5a6;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  background: var(--secondary);
+  font-family: 'Inter', Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.dashboard-card {
+  @apply bg-white rounded-xl shadow-sm transition-all duration-300;
+}
+
+.dashboard-card:hover {
+  @apply shadow-md transform -translate-y-1;
+}
+
+.chart-container {
+  @apply bg-white rounded-xl shadow-sm p-6 transition-all duration-300;
+  min-height: 400px;
+}
+
+.chart-container:hover {
+  @apply shadow-md;
+}
+
+.increase {
+  color: var(--success);
+}
+
+.decrease {
+  color: var(--danger);
+}
+
+.status-badge {
+  @apply px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.status-badge.success {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-badge.warning {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-badge.danger {
+  @apply bg-red-100 text-red-800;
 }
